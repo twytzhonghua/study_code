@@ -7,5 +7,7 @@
 3function_template.cpp  	模板
 4class_1					类
 5constructor   				构造函数 析构函数
+6this_pointer				this 指针  重复构造函数  static成员变量函数， 只能类访问， 对象不能访问
+
 
 
