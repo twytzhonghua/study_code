@@ -9,5 +9,8 @@
 5constructor   				构造函数 析构函数
 6this_pointer				this 指针  重复构造函数  static成员变量函数， 只能类访问， 对象不能访问
 7friend						友元函数 友元类  友元函数可以访问类中的private成员
-
-
+8Overload_operator			重载运算符
+	3种方式: 
+		1. 函数Time AddTime(Time& time1, Time& time2)	友元
+		2. Time operator+(Time& time1, Time& time2)    友元
+		3. Time Time::operator+(Time& time) 		内部函数
