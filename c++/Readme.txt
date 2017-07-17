@@ -15,3 +15,6 @@
 		2. Time operator+(Time& time1, Time& time2)    友元
 		3. Time Time::operator+(Time& time) 		内部函数
 		
+9继承与派生基础:
+		已经存在的类叫父类, 基类或超类, 新建立的类被成为派生类或者子类
+		
