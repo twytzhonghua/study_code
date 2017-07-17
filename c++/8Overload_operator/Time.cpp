@@ -94,3 +94,4 @@ Time Time::operator+(Time& time)
 	return Time(hour, minute, second);
 }
 
+

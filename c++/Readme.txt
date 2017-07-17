@@ -14,3 +14,4 @@
 		1. 函数Time AddTime(Time& time1, Time& time2)	友元
 		2. Time operator+(Time& time1, Time& time2)    友元
 		3. Time Time::operator+(Time& time) 		内部函数
+		
