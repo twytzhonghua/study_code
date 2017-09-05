@@ -191,15 +191,112 @@ if __name__ == '__main__':
     # [3 23 53]
 
     # 4.1 numpy与Python数学库的时间比较
-    for j in np.logspace(0, 7, 8):
-        x = np.linspace(0, 10, j)
-        start = time.clock()
-        y = np.sin(x)
-        t1 = time.clock() - start
+    # for j in np.logspace(0, 7, 8):
+    #     x = np.linspace(0, 10, j)
+    #     start = time.clock()
+    #     y = np.sin(x)
+    #     t1 = time.clock() - start
+    #
+    #     x = x.tolist()
+    #     start = time.clock()
+    #     for i, t in enumerate(x):
+    #         x[i] = math.sin(t)
+    #     t2 = time.clock() - start
+    #     print j, ": ", t1, t2, t2/t1
 
-        x = x.tolist()
-        start = time.clock()
-        for i, t in enumerate(x):
-            x[i] = math.sin(t)
-        t2 = time.clock() - start
-        print j, ": ", t1, t2, t2/t1
+    #4.2 元素去重
+    #4.2.1直接使用库函数
+    # a = np.array((1, 2, 3, 4, 5, 5, 7, 3, 2, 2, 8, 8))
+    # print '原始数组：', a
+    # # # 使用库函数unique
+    # b = np.unique(a)
+    # print '去重后：', b
+    # # # 4.2.2 二维数组的去重，结果会是预期的么？
+    # c = np.array(((1, 2), (3, 4), (5, 6), (1, 3), (3, 4), (7, 6)))
+    # print '二维数组：\n', c
+    # print '去重后：', np.unique(c)
+    # # # 4.2.3 方案1：转换为虚数
+    # r, i = np.split(c, (1, ), axis=1)
+    # x = r + i * 1j
+    # x = c[:, 0] + c[:, 1] * 1j
+    # print '转换成虚数：', x
+    # print '虚数去重后：', np.unique(x)
+    # print np.unique(x, return_index=True)   # 思考return_index的意义
+    # idx = np.unique(x, return_index=True)[1]
+    # print '二维数组去重：\n', c[idx]
+    # #4.2.3 方案2：利用set  推荐用这种
+    # print '去重方案2：\n', np.array(list(set([tuple(t) for t in c])))
+
+    # # 4.3 stack and axis
+    # a = np.arange(1, 7).reshape((2, 3))
+    # b = np.arange(11, 17).reshape((2, 3))
+    # c = np.arange(21, 27).reshape((2, 3))
+    # d = np.arange(31, 37).reshape((2, 3))
+    # print 'a = \n', a
+    # print 'b = \n', b
+    # print 'c = \n', c
+    # print 'd = \n', d
+    # 直接叠加 轴为 0
+    # s = np.stack((a, b, c, d), axis=0)
+    # print 'axis = 0 ', s.shape, '\n', s
+    # axis = 0(4L, 2L, 3L)
+    # [[[1  2  3]
+    #   [4  5  6]]
+    #
+    # [[11 12 13]
+    # [14 15 16]]
+    #
+    # [[21 22 23]
+    #  [24 25 26]]
+    #
+    # [[31 32 33]
+    #  [34 35 36]]]
+
+    # 轴取 1，
+    # s = np.stack((a, b, c, d), axis=1)
+    # print 'axis = 1 ', s.shape, '\n', s
+    # axis = 1(2L, 4L, 3L)
+    # [[[1  2  3]
+    #   [11 12 13]
+    #  [21 22 23]
+    # [31 32 33]]
+    #
+    # [[4  5  6]
+    #  [14 15 16]
+    # [24 25 26]
+    # [34 35 36]]]
+
+    # 轴取 2， 原始数据的 2行 3列 4个元素构成
+    # s = np.stack((a, b, c, d), axis=2)
+    # print 'axis = 2 ', s.shape, '\n', s
+    # axis = 2  (2L, 3L, 4L)
+    # [[[ 1 11 21 31]
+    #   [ 2 12 22 32]
+    #   [ 3 13 23 33]]
+    #
+    #  [[ 4 14 24 34]
+    #   [ 5 15 25 35]
+    #   [ 6 16 26 36]]]
+
+    #矩阵相乘  注意两种不同的方式
+    # a = np.arange(1, 10).reshape(3,3)
+    # print a
+    # b = a + 10
+    # print b
+    # print np.dot(a, b)
+    # [[90  96 102]
+    #  [216 231 246]
+    # [342 366 390]]
+    # print a * b
+    # [[11  24  39]
+    #  [56  75  96]
+    # [119 144  171]]
+
+    #numpy连接  类似列表的append
+    a = np.arange(1, 10)
+    print a
+    b = np.arange(20,25)
+    print b
+    print np.concatenate((a, b))
+
+    
