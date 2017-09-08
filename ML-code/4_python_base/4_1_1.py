@@ -14,6 +14,17 @@ from scipy.interpolate import CubicSpline
 import scipy as sp
 import math
 
+
+def residual(t, x, y):
+    return y - (t[0] * x ** 2 + t[1] * x + t[2])
+
+
+def residual2(t, x, y):
+    print t[0], t[1]
+    return y - (t[0]*np.sin(t[1]*x) + t[2])
+
+
+
 # x ** x        x > 0
 # (-x) ** (-x)  x < 0
 def f(x):
@@ -222,17 +233,17 @@ if __name__ == '__main__':
     # x, y = np.mgrid[-3:3:7j, -3:3:7j]
     # print x
     # print y
-    u = np.linspace(-3, 3, 101)
-    x, y = np.meshgrid(u, u)
-    print x
-    print y
-    z = x*y*np.exp(-(x**2 + y**2)/2) / math.sqrt(2*math.pi)
+    # u = np.linspace(-3, 3, 101)
+    # x, y = np.meshgrid(u, u)
+    # print x
+    # print y
     # z = x*y*np.exp(-(x**2 + y**2)/2) / math.sqrt(2*math.pi)
-    fig = plt.figure()
-    ax = fig.add_subplot(111, projection='3d')
-    # ax.plot_surface(x, y, z, rstride=5, cstride=5, cmap=cm.coolwarm, linewidth=0.1)  #
-    ax.plot_surface(x, y, z, rstride=3, cstride=3, cmap=cm.Accent, linewidth=0.5)
-    plt.show()
+    # # z = x*y*np.exp(-(x**2 + y**2)/2) / math.sqrt(2*math.pi)
+    # fig = plt.figure()
+    # ax = fig.add_subplot(111, projection='3d')
+    # # ax.plot_surface(x, y, z, rstride=5, cstride=5, cmap=cm.coolwarm, linewidth=0.1)  #
+    # ax.plot_surface(x, y, z, rstride=3, cstride=3, cmap=cm.Accent, linewidth=0.5)
+    # plt.show()
     # # cmaps = [('Perceptually Uniform Sequential',
     # #           ['viridis', 'inferno', 'plasma', 'magma']),
     # #          ('Sequential', ['Blues', 'BuGn', 'BuPu',

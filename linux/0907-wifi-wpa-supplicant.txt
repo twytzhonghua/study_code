@@ -1,0 +1,224 @@
+https://wireless.wiki.kernel.org/
+
+	认证 加密
+初级版本  不安全
+	open   open
+	open	WEP
+	WEP	WEP
+过渡版本(WPA)
+	802.1x TKIP, WEP
+	PSK 	TKIP, WEP  很安全
+	
+	
+
+终结版本 (WPA2)
+	802.1x 	CCMP(AES-CCMP), TKIP, WEP
+	PSK 	CCMP(AES-CCMP), TKIP, WEP  非常安全
+
+总结认证/加密4中方式
+1. open
+2. WEP
+3. WPA
+4. WPA2(AES)
+
+认证方式：
+802.1x
+	手机----》AP ----》服务器  （由服务器进行认证，成本较高）
+PSK
+	手机---》AP（通过手机设置的密码）
+
+
+工具：  iw， wpa_supplicant, dhcp
+
+	旧的工具是iwconfig, iw是他的替代品， 可用于 open WEP
+	wpa_supplicant 可用于4种
+	dhcp可以是wifi动态获取地址
+
+使用:
+mkdir -p /var/run/wpa_supplicant
+① OPEN
+wpa_supplicant -B -c/etc/plaintext.conf -iwlan0
+wpa_cli -iwlan0 status  // 查看状态
+ifconfig wlan0 192.168.1.55
+ping 192.168.1.1
+
+配置文件内容为:
+ctrl_interface=/var/run/wpa_supplicant
+network={
+        ssid="dswei"
+        key_mgmt=NONE
+}
+
+② WEP/WEP
+wpa_supplicant -B -c/etc/wep.conf  -iwlan0
+wpa_cli -iwlan0 status  // 查看状态
+ifconfig wlan0 192.168.1.55
+ping 192.168.1.1
+
+配置文件:
+ctrl_interface=/var/run/wpa_supplicant
+network={
+        ssid="dswei"
+        key_mgmt=NONE
+        wep_key0="baiwenwang123"
+        wep_tx_keyidx=0
+}
+
+③WPA(TKIP)
+wpa_supplicant -B -c/etc/wpa-psk-tkip.conf  -iwlan0
+wpa_cli -iwlan0 status  // 查看状态
+ifconfig wlan0 192.168.1.55
+ping 192.168.1.1
+
+配置文件
+ctrl_interface=/var/run/wpa_supplicant  # 一个目录,用于wpa_supplicant和wpa_cli的socket通信
+network={
+        ssid="dswei"
+        proto=WPA  # proto: list of accepted protocols, 可取WPA,RSN
+                   # If not set, this defaults to: WPA RSN
+        key_mgmt=WPA-PSK # 认证方式
+                         # If not set, this defaults to: WPA-PSK WPA-EAP
+        pairwise=TKIP    # If not set, this defaults to: CCMP TKIP
+        group=TKIP       # If not set, this defaults to: CCMP TKIP WEP104 WEP40 
+        psk="baiwenwang12"
+}
+
+④ WPA2(AES)
+wpa_supplicant -B -c/etc/wpa_wpa2.conf  -iwlan0
+wpa_cli -iwlan0 status  // 查看状态
+ifconfig wlan0 192.168.1.55
+ping 192.168.1.1
+
+配置文件：
+ctrl_interface=/var/run/wpa_supplicant
+network={
+        ssid="dswei"
+        psk="baiwenwang123"
+}
+
+另：
+wpa_cli可工作于"命令模式"和"交互模式"
+
+⑤ 配置文件里设置多个network:
+ctrl_interface=/var/run/wpa_supplicant
+network={
+        ssid="dswei"
+        psk="baiwenwang123"
+}
+network={
+        ssid="Programer"
+        psk="baiwenwang"
+}
+
+⑥ 访问外网：
+修改/etc/resolv.conf添加DNS:
+nameserver 192.168.1.1
+
+设置网关:
+route add default gw 192.168.1.1
+
+3. 使用WIFI网卡的AP功能
+
+参考: 移植hostapd，搭建无线热点 - 积水成渊 - 博客频道 - CSDN.NET.htm
+http://blog.csdn.net/daydring/article/details/16337047
+
+3.1 下载源码: http://w1.fi/hostapd/
+3.2 编译、安装
+tar xzf hostapd-2.0.tar.gz
+cd hostapd-2.0/
+cd hostapd/
+cp defconfig .config
+修改.config, 加一行: CONFIG_LIBNL32=y
+修改Makefile:
+CC=arm-linux-gcc
+make
+make DESTDIR=$PWD/tmp install
+
+把生成的hostapd  hostapd_cli复制到NFS的bin目录
+
+3.3 使用
+a. hostapd的配置文件: WPA/WPA2
+ctrl_interface=/var/run/hostapd
+#change wlan0 to your wireless device
+interface=wlan0
+driver=nl80211
+ssid=S3C2440
+channel=1
+
+# 认证/加密方式
+macaddr_acl=0
+auth_algs=1
+ignore_broadcast_ssid=0
+wpa=3
+wpa_passphrase=baiwenwang
+wpa_key_mgmt=WPA-PSK
+wpa_pairwise=TKIP
+rsn_pairwise=CCMP
+
+把配置文件存为/etc/myhostapd.conf
+启动 hostapd: hostapd -B /etc/myhostapd.conf
+
+b. 启动 dhcpd
+修改配置文件/etc/dhcpd.conf，添加：
+subnet 192.168.1.0 netmask 255.255.255.0 {                       
+  range 192.168.1.10 192.168.1.100;                              
+  option domain-name-servers 192.168.1.1;                        
+  option routers 192.168.1.1;                                    
+}    
+
+创建空文件/var/db/dhcpd.leases:
+> /var/db/dhcpd.leases
+
+ifconfig wlan0 192.168.1.1
+dhcpd -cf /etc/dhcpd.conf wlan0
+
+
+3.4 OPEN方式的配置文件
+ctrl_interface=/var/run/hostapd
+#change wlan0 to your wireless device
+interface=wlan0
+driver=nl80211
+ssid=S3C2440
+channel=1
+
+# 认证/加密方式
+macaddr_acl=0
+auth_algs=1
+ignore_broadcast_ssid=0
+
+3.5 WEP方式的配置文件
+ctrl_interface=/var/run/hostapd
+#change wlan0 to your wireless device
+interface=wlan0
+driver=nl80211
+ssid=S3C2440
+channel=1
+
+# 认证/加密方式
+macaddr_acl=0
+auth_algs=2
+ignore_broadcast_ssid=0
+wep_key0="baiwenwang123"
+wep_default_key=0
+
+3.6 修改/etc/mdev.conf自动启动AP模式
+cat /etc/mdev.conf 
+wlan0 0:0 777 * /sbin/auto_wifi_ap.sh
+
+cat /sbin/auto_wifi_ap.sh 
+#!/bin/sh
+if [ $ACTION = "add" ]; 
+then
+   hostapd -B /etc/myhostapd.conf
+   ifconfig wlan0 192.168.1.1
+   dhcpd -cf /etc/dhcpd.conf wlan0
+else
+   killall hostapd
+   killall dhcpd
+fi
+
+
+wapi
+https://wireless.wiki.kernel.org/en/developers/wapi
+	
+
