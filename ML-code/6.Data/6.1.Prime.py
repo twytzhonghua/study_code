@@ -69,7 +69,7 @@ if __name__ == "__main__":
     # print time() - t
     # print p_list2
     #
-    print '---------------------'
+    # print '---------------------'
     a = 750
     b = 900
     p_list2 = []
