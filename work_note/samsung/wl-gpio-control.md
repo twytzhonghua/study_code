@@ -1,0 +1,224 @@
+# [W1DTS-914] Implement gpio pin controls of driver code as device tree(Wireless charge)
+## dts中修改wireless 3个gpio
+![wireless-control-pin.jpg](https://i.loli.net/2018/01/11/5a56d510ecf4d.jpg)
+
+| name  | gpio |
+|---|---|
+|en1    | gpa0-4 |
+|en2    | gpa1-2 |
+|chg-det| gpa1-0 |
+
+```
+[    3.397527]  [0:      swapper/0:    1] chg_det_gpio = 18
+[    3.397539]  [0:      swapper/0:    1] chg_en1_gpio = 14
+[    3.397550]  [0:      swapper/0:    1] chg_en2_gpio = 20
+```
+
+![samsung-gpio-regs.jpg](https://i.loli.net/2018/01/11/5a5702229056b.jpg)
+
+![gpio-sleep-state.jpg](https://i.loli.net/2018/01/11/5a5709ad8a213.jpg)
+
+![wl-gpios-type.jpg](https://i.loli.net/2018/01/11/5a570a5c61dd1.jpg)
+
+```
+![gpio-sleep-state.jpg](C:\Users\albert\Pictures\gpio-sleep-state.jpg)
+```
+
+```
+pinctrl@139B0000 {
+  codec_irq: codec-irq {
+    samsung,pins = "gpd1-5";
+    samsung,pin-con = <0>;  //配置输入输出中断
+    samsung,pin-pud = <0>;  //上下拉
+    samsung,pin-val = <0>;
+    samsung,pin-con-pdn = <3>; //睡眠状态下的控制
+    samsung,pin-pud-pdn = <0>; //睡眠状态下的上下拉
+  };
+  };
+```
+
+## pinctrl 配置详解
+
+
+## **pinctrl**结果
+```jindory:/ # cat /d/gpio
+GPIOs 0-6, platform/139f0000.pinctrl, etc0:
+
+GPIOs 7-9, platform/139f0000.pinctrl, etc1:
+
+GPIOs 10-17, platform/139f0000.pinctrl, gpa0:
+ gpio-12  (bt541_irq_gpio      ) in  hi IRQ
+ gpio-13  (qlspi,irq-gpio      ) in  lo IRQ
+ gpio-14  (wireless_chg_en1    ) out lo
+ gpio-16  (nfc_irq             ) in  lo IRQ
+ gpio-17  (vib_enable          ) out lo
+
+GPIOs 18-25, platform/139f0000.pinctrl, gpa1:
+ gpio-18  (wireless_chg_det    ) in  hi
+ gpio-20  (wireless_chg_en2    ) out lo
+ gpio-25  (arizona /RESET      ) out hi
+
+GPIOs 26-33, platform/139f0000.pinctrl, gpa2:
+ gpio-29  (arizona /ldoena     ) out lo
+ gpio-30  (esim_switch         ) out lo
+
+GPIOs 34-34, platform/139f0000.pinctrl, gpq0:
+
+GPIOs 35-39, platform/139e0000.pinctrl, gpc7:
+ gpio-36  (spi0.0              ) out hi
+ gpio-38  (spi-mosi            ) out hi
+
+GPIOs 40-46, platform/148c0000.pinctrl, gpz1:
+
+GPIOs 47-49, platform/13750000.pinctrl, gpr0:
+
+GPIOs 50-57, platform/13750000.pinctrl, gpr1:
+
+GPIOs 58-63, platform/13750000.pinctrl, gpr4:
+
+GPIOs 64-64, platform/10530000.pinctrl, gpm0:
+
+GPIOs 65-68, platform/139c0000.pinctrl, gpc2:
+ gpio-67  (nfc_ven             ) out lo
+
+GPIOs 69-71, platform/139b0000.pinctrl, gpc0:
+
+GPIOs 72-75, platform/139b0000.pinctrl, gpc1:
+
+GPIOs 76-79, platform/139b0000.pinctrl, gpc4:
+
+GPIOs 80-86, platform/139b0000.pinctrl, gpd1:
+ gpio-80  (nfc_firm            ) out lo
+ gpio-81  (rst_n_gpio          ) out hi
+ gpio-82  (gpio-hw_rev0        ) in  hi
+ gpio-83  (gpio-hw_rev1        ) in  lo
+
+GPIOs 87-89, platform/139b0000.pinctrl, gpe0:
+
+GPIOs 90-93, platform/139b0000.pinctrl, gpf0:
+ gpio-91  (nfc_pwr_en          ) out hi
+
+GPIOs 94-95, platform/139b0000.pinctrl, gpf1:
+
+GPIOs 96-99, platform/139b0000.pinctrl, gpf3:
+ gpio-97  (spi1.0              ) out hi
+
+GPIOs 100-102, platform/139d0000.pinctrl, gpc3:
+ gpio-102 (bt541_reset_gpio    ) out hi
+
+GPIOs 103-103, platform/139d0000.pinctrl, gpd2:
+
+GPIOs 497-511, platform/arizona-gpio, arizona, can sleep:
+```
+ ------
+
+更改前
+```
+adb shell cat /sys/kernel/debug/pinctrl/139f0000.pinctrl/pi
+jindory:/sys/kernel/debug/pinctrl # cat */pins
+registered pins: 1
+pin 64 (gpm0-0)  CON(0x2) DAT(0x1) PUD(0x3) DRV(0x0) CON_PDN(0x3) PUD_PDN(0x0)
+registered pins: 17
+pin 47 (gpr0-0)  CON(0x2) DAT(0x0) PUD(0x0) DRV(0x2) CON_PDN(0x0) PUD_PDN(0x0)
+pin 48 (gpr0-1)  CON(0x2) DAT(0x1) PUD(0x3) DRV(0x2) CON_PDN(0x0) PUD_PDN(0x0)
+pin 49 (gpr0-2)  CON(0x2) DAT(0x0) PUD(0x1) DRV(0x2) CON_PDN(0x0) PUD_PDN(0x0)
+pin 50 (gpr1-0)  CON(0x2) DAT(0x1) PUD(0x3) DRV(0x2) CON_PDN(0x0) PUD_PDN(0x0)
+pin 51 (gpr1-1)  CON(0x2) DAT(0x1) PUD(0x3) DRV(0x2) CON_PDN(0x0) PUD_PDN(0x0)
+pin 52 (gpr1-2)  CON(0x2) DAT(0x1) PUD(0x3) DRV(0x2) CON_PDN(0x0) PUD_PDN(0x0)
+pin 53 (gpr1-3)  CON(0x2) DAT(0x1) PUD(0x3) DRV(0x2) CON_PDN(0x0) PUD_PDN(0x0)
+pin 54 (gpr1-4)  CON(0x2) DAT(0x1) PUD(0x3) DRV(0x2) CON_PDN(0x0) PUD_PDN(0x0)
+pin 55 (gpr1-5)  CON(0x2) DAT(0x1) PUD(0x3) DRV(0x2) CON_PDN(0x0) PUD_PDN(0x0)
+pin 56 (gpr1-6)  CON(0x2) DAT(0x1) PUD(0x3) DRV(0x2) CON_PDN(0x0) PUD_PDN(0x0)
+pin 57 (gpr1-7)  CON(0x2) DAT(0x1) PUD(0x3) DRV(0x2) CON_PDN(0x0) PUD_PDN(0x0)
+pin 58 (gpr4-0)  CON(0x0) DAT(0x0) PUD(0x1) DRV(0x0) CON_PDN(0x0) PUD_PDN(0x0)
+pin 59 (gpr4-1)  CON(0x0) DAT(0x0) PUD(0x1) DRV(0x0) CON_PDN(0x0) PUD_PDN(0x0)
+pin 60 (gpr4-2)  CON(0x0) DAT(0x0) PUD(0x1) DRV(0x0) CON_PDN(0x0) PUD_PDN(0x0)
+pin 61 (gpr4-3)  CON(0x0) DAT(0x0) PUD(0x1) DRV(0x0) CON_PDN(0x0) PUD_PDN(0x0)
+pin 62 (gpr4-4)  CON(0x0) DAT(0x0) PUD(0x1) DRV(0x0) CON_PDN(0x0) PUD_PDN(0x0)
+pin 63 (gpr4-5)  CON(0x0) DAT(0x0) PUD(0x1) DRV(0x0) CON_PDN(0x0) PUD_PDN(0x0)
+registered pins: 31
+pin 69 (gpc0-0)  CON(0x0) DAT(0x0) PUD(0x1) DRV(0x0) CON_PDN(0x0) PUD_PDN(0x0)
+pin 70 (gpc0-1)  CON(0x0) DAT(0x0) PUD(0x1) DRV(0x2) CON_PDN(0x0) PUD_PDN(0x0)
+pin 71 (gpc0-2)  CON(0x0) DAT(0x1) PUD(0x3) DRV(0x2) CON_PDN(0x0) PUD_PDN(0x0)
+pin 72 (gpc1-0)  CON(0x0) DAT(0x0) PUD(0x1) DRV(0x0) CON_PDN(0x0) PUD_PDN(0x0)
+pin 73 (gpc1-1)  CON(0x0) DAT(0x0) PUD(0x1) DRV(0x0) CON_PDN(0x0) PUD_PDN(0x0)
+pin 74 (gpc1-2)  CON(0x0) DAT(0x0) PUD(0x1) DRV(0x2) CON_PDN(0x0) PUD_PDN(0x0)
+pin 75 (gpc1-3)  CON(0x0) DAT(0x0) PUD(0x1) DRV(0x2) CON_PDN(0x0) PUD_PDN(0x0)
+pin 76 (gpc4-0)  CON(0x2) DAT(0x1) PUD(0x3) DRV(0x0) CON_PDN(0x0) PUD_PDN(0x0)
+pin 77 (gpc4-1)  CON(0x2) DAT(0x1) PUD(0x3) DRV(0x0) CON_PDN(0x0) PUD_PDN(0x0)
+pin 78 (gpc4-2)  CON(0x0) DAT(0x0) PUD(0x1) DRV(0x2) CON_PDN(0x0) PUD_PDN(0x0)
+pin 79 (gpc4-3)  CON(0x0) DAT(0x0) PUD(0x1) DRV(0x2) CON_PDN(0x0) PUD_PDN(0x0)
+pin 80 (gpd1-0)  CON(0x1) DAT(0x0) PUD(0x1) DRV(0x2) CON_PDN(0x0) PUD_PDN(0x0)
+pin 81 (gpd1-1)  CON(0x1) DAT(0x1) PUD(0x0) DRV(0x2) CON_PDN(0x3) PUD_PDN(0x0)
+pin 82 (gpd1-2)  CON(0x0) DAT(0x1) PUD(0x1) DRV(0x2) CON_PDN(0x0) PUD_PDN(0x0)
+pin 83 (gpd1-3)  CON(0x0) DAT(0x0) PUD(0x1) DRV(0x2) CON_PDN(0x0) PUD_PDN(0x0)
+pin 84 (gpd1-4)  CON(0x0) DAT(0x0) PUD(0x1) DRV(0x2) CON_PDN(0x0) PUD_PDN(0x0)
+pin 85 (gpd1-5)  CON(0xf) DAT(0x1) PUD(0x0) DRV(0x2) CON_PDN(0x3) PUD_PDN(0x0)
+pin 86 (gpd1-6)  CON(0x1) DAT(0x1) PUD(0x0) DRV(0x2) CON_PDN(0x0) PUD_PDN(0x0)
+pin 87 (gpe0-0)  CON(0x0) DAT(0x0) PUD(0x1) DRV(0x2) CON_PDN(0x0) PUD_PDN(0x0)
+pin 88 (gpe0-1)  CON(0x0) DAT(0x0) PUD(0x1) DRV(0x0) CON_PDN(0x0) PUD_PDN(0x0)
+pin 89 (gpe0-2)  CON(0x0) DAT(0x0) PUD(0x1) DRV(0x2) CON_PDN(0x0) PUD_PDN(0x0)
+pin 90 (gpf0-0)  CON(0x0) DAT(0x0) PUD(0x1) DRV(0x2) CON_PDN(0x0) PUD_PDN(0x0)
+pin 91 (gpf0-1)  CON(0x1) DAT(0x1) PUD(0x1) DRV(0x2) CON_PDN(0x0) PUD_PDN(0x0)
+pin 92 (gpf0-2)  CON(0x0) DAT(0x0) PUD(0x1) DRV(0x2) CON_PDN(0x0) PUD_PDN(0x0)
+pin 93 (gpf0-3)  CON(0x0) DAT(0x0) PUD(0x1) DRV(0x2) CON_PDN(0x0) PUD_PDN(0x0)
+pin 94 (gpf1-0)  CON(0x0) DAT(0x0) PUD(0x1) DRV(0x2) CON_PDN(0x0) PUD_PDN(0x0)
+pin 95 (gpf1-1)  CON(0x0) DAT(0x0) PUD(0x1) DRV(0x2) CON_PDN(0x0) PUD_PDN(0x0)
+pin 96 (gpf3-0)  CON(0x2) DAT(0x0) PUD(0x3) DRV(0x0) CON_PDN(0x0) PUD_PDN(0x0)
+pin 97 (gpf3-1)  CON(0x1) DAT(0x1) PUD(0x1) DRV(0x0) CON_PDN(0x0) PUD_PDN(0x0)
+pin 98 (gpf3-2)  CON(0x2) DAT(0x1) PUD(0x3) DRV(0x0) CON_PDN(0x0) PUD_PDN(0x0)
+pin 99 (gpf3-3)  CON(0x2) DAT(0x1) PUD(0x3) DRV(0x0) CON_PDN(0x0) PUD_PDN(0x0)
+registered pins: 4
+pin 65 (gpc2-0)  CON(0x2) DAT(0x1) PUD(0x3) DRV(0x0) CON_PDN(0x0) PUD_PDN(0x0)
+pin 66 (gpc2-1)  CON(0x2) DAT(0x1) PUD(0x3) DRV(0x0) CON_PDN(0x0) PUD_PDN(0x0)
+pin 67 (gpc2-2)  CON(0x1) DAT(0x0) PUD(0x1) DRV(0x2) CON_PDN(0x0) PUD_PDN(0x0)
+pin 68 (gpc2-3)  CON(0x0) DAT(0x1) PUD(0x1) DRV(0x2) CON_PDN(0x0) PUD_PDN(0x0)
+registered pins: 4
+pin 100 (gpc3-0)  CON(0x2) DAT(0x1) PUD(0x3) DRV(0x0) CON_PDN(0x3) PUD_PDN(0x0)
+pin 101 (gpc3-1)  CON(0x2) DAT(0x1) PUD(0x3) DRV(0x0) CON_PDN(0x3) PUD_PDN(0x0)
+pin 102 (gpc3-2)  CON(0x1) DAT(0x1) PUD(0x1) DRV(0x2) CON_PDN(0x0) PUD_PDN(0x1)
+pin 103 (gpd2-0)  CON(0x1) DAT(0x0) PUD(0x1) DRV(0x3) CON_PDN(0x0) PUD_PDN(0x0)
+registered pins: 5
+pin 35 (gpc7-0)  CON(0x2) DAT(0x0) PUD(0x3) DRV(0x0) CON_PDN(0x0) PUD_PDN(0x0)
+pin 36 (gpc7-1)  CON(0x1) DAT(0x1) PUD(0x1) DRV(0x2) CON_PDN(0x1) PUD_PDN(0x0)
+pin 37 (gpc7-2)  CON(0x2) DAT(0x1) PUD(0x3) DRV(0x0) CON_PDN(0x0) PUD_PDN(0x0)
+pin 38 (gpc7-3)  CON(0x2) DAT(0x1) PUD(0x3) DRV(0x0) CON_PDN(0x1) PUD_PDN(0x0)
+pin 39 (gpc7-4)  CON(0x0) DAT(0x0) PUD(0x1) DRV(0x2) CON_PDN(0x0) PUD_PDN(0x0)
+registered pins: 35
+pin 0 (etc0-0)  CON(0x2) DAT(0x0) PUD(0x1) DRV(0x0)
+pin 1 (etc0-1)  CON(0x0) DAT(0x0) PUD(0x3) DRV(0x0)
+pin 2 (etc0-2)  CON(0x0) DAT(0x0) PUD(0x1) DRV(0x0)
+pin 3 (etc0-3)  CON(0x2) DAT(0x1) PUD(0x3) DRV(0x0)
+pin 4 (etc0-4)  CON(0x2) DAT(0x0) PUD(0x1) DRV(0x0)
+pin 5 (etc0-5)  CON(0x0) DAT(0x0) PUD(0x1) DRV(0x0)
+pin 6 (etc0-6)  CON(0x2) DAT(0x1) PUD(0x1) DRV(0x0)
+pin 7 (etc1-0)  CON(0x0) DAT(0x0) PUD(0x1) DRV(0x2)
+pin 8 (etc1-1)  CON(0x0) DAT(0x0) PUD(0x1) DRV(0x2)
+pin 9 (etc1-2)  CON(0x0) DAT(0x0) PUD(0x1) DRV(0x2)
+pin 10 (gpa0-0)  CON(0x0) DAT(0x0) PUD(0x1) DRV(0x0)
+pin 11 (gpa0-1)  CON(0x0) DAT(0x0) PUD(0x1) DRV(0x0)
+pin 12 (gpa0-2)  CON(0xf) DAT(0x1) PUD(0x0) DRV(0x0)
+pin 13 (gpa0-3)  CON(0xf) DAT(0x0) PUD(0x1) DRV(0x0)
+pin 14 (gpa0-4)  CON(0x1) DAT(0x0) PUD(0x1) DRV(0x0)
+pin 15 (gpa0-5)  CON(0xf) DAT(0x1) PUD(0x3) DRV(0x3)
+pin 16 (gpa0-6)  CON(0xf) DAT(0x0) PUD(0x1) DRV(0x0)
+pin 17 (gpa0-7)  CON(0x1) DAT(0x0) PUD(0x1) DRV(0x0)
+pin 18 (gpa1-0)  CON(0x0) DAT(0x1) PUD(0x1) DRV(0x2)
+pin 19 (gpa1-1)  CON(0x1) DAT(0x0) PUD(0x0) DRV(0x2)
+pin 20 (gpa1-2)  CON(0x1) DAT(0x0) PUD(0x1) DRV(0x0)
+pin 21 (gpa1-3)  CON(0x2) DAT(0x0) PUD(0x1) DRV(0x2)
+pin 22 (gpa1-4)  CON(0x0) DAT(0x0) PUD(0x1) DRV(0x3)
+pin 23 (gpa1-5)  CON(0x3) DAT(0x1) PUD(0x0) DRV(0x0)
+pin 24 (gpa1-6)  CON(0x3) DAT(0x1) PUD(0x0) DRV(0x0)
+pin 25 (gpa1-7)  CON(0x1) DAT(0x1) PUD(0x0) DRV(0x0)
+pin 26 (gpa2-0)  CON(0x0) DAT(0x0) PUD(0x1) DRV(0x0)
+pin 27 (gpa2-1)  CON(0x0) DAT(0x0) PUD(0x1) DRV(0x0)
+pin 28 (gpa2-2)  CON(0x0) DAT(0x0) PUD(0x1) DRV(0x0)
+pin 29 (gpa2-3)  CON(0x1) DAT(0x0) PUD(0x0) DRV(0x0)
+pin 30 (gpa2-4)  CON(0x1) DAT(0x0) PUD(0x1) DRV(0x0)
+pin 31 (gpa2-5)  CON(0x0) DAT(0x0) PUD(0x1) DRV(0x0)
+pin 32 (gpa2-6)  CON(0x0) DAT(0x0) PUD(0x1) DRV(0x0)
+pin 33 (gpa2-7)  CON(0x0) DAT(0x0) PUD(0x1) DRV(0x0)
+pin 34 (gpq0-0)  CON(0x2) DAT(0x0) PUD(0x1) DRV(0x2)
+
+```
